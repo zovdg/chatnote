@@ -19,7 +19,7 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(username: str):
+async def get_user(username: str) -> UserDatabaseSchema:
     return await UserDatabaseSchema.from_queryset_single(Users.get(username=username))
 
 
