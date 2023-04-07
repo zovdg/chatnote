@@ -2,23 +2,23 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
-from tortoise.contrib.fastapi import HTTPNotFoundError
-
 from .. import schemas
-from .. import auth
-from .. import services
+from ..auth import get_current_user
+from ..services import users as user_service
+from ..services import auth as auth_service
 
 router = APIRouter()
 
+auth_router = APIRouter()
 
-@router.post("/register", response_model=schemas.UserOutSchema)
-async def create_user(user: schemas.UserInSchema) -> schemas.UserOutSchema:
-    return await services.UserService.user_create(user)
+@auth_router.post("/register", response_model=schemas.UserOut)
+async def create_user(user: schemas.UserIn) -> schemas.UserOut:
+    return await user_service.create_user(user)
 
 
-@router.post("/login")
+@auth_router.post("/login")
 async def login(user: OAuth2PasswordRequestForm = Depends()):
-    token = await services.AuthService.login(user)
+    token = await auth_service.login(user)
     content = {"message": "You've successfully logged in. Welcome back!"}
     response = JSONResponse(content=content)
     response.set_cookie(
@@ -32,25 +32,19 @@ async def login(user: OAuth2PasswordRequestForm = Depends()):
     )
     return response
 
+user_router = APIRouter()
 
-@router.get(
+
+@user_router.get(
     "/users/me",
-    response_model=schemas.UserOutSchema,
-    dependencies=[Depends(auth.get_current_user)],
+    response_model=schemas.UserOut,
+    dependencies=[Depends(get_current_user)],
 )
 async def read_users_me(
-    current_user: schemas.UserOutSchema = Depends(auth.get_current_user),
+    current_user: schemas.UserOut = Depends(get_current_user),
 ):
     return current_user
 
 
-@router.delete(
-    "/user/{user_id}",
-    response_model=schemas.Status,
-    responses={404: {"model": HTTPNotFoundError}},
-    dependencies=[Depends(auth.get_current_user)],
-)
-async def delete_user(
-    user_id: str, current_user: schemas.UserOutSchema = Depends(auth.get_current_user)
-) -> schemas.Status:
-    return await services.UserService.user_delete(user_id, current_user.id)
+router.include_router(auth_router, tags=['auth'])
+router.include_router(user_router, tags=['user'])

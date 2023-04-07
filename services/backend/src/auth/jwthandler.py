@@ -11,7 +11,7 @@ from tortoise.exceptions import DoesNotExist
 
 from ..core.config import settings
 from ..schemas.token import TokenData
-from ..schemas.users import UserOutSchema
+from ..schemas.users import UserOut
 from ..db.models import Users
 
 from .. import exceptions
@@ -76,7 +76,7 @@ async def get_current_user(token: str = Depends(security)):
         raise exceptions.unauthorized("Could not validate credentials")
 
     try:
-        user = await UserOutSchema.from_queryset_single(
+        user = await UserOut.from_queryset_single(
             Users.get(username=token_data.username)
         )
     except DoesNotExist:

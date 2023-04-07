@@ -1,26 +1,26 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from ..db.models import Chats
-from .conversations import ConversationOutSchema
+from ..db import models as db_models
 
 
-ChatInSchema = pydantic_model_creator(
-    Chats, name="ChatIn", exclude=("user_id",), exclude_readonly=True
+ChatIn = pydantic_model_creator(
+    db_models.Chats, name="ChatIn", exclude=("user_id",), exclude_readonly=True
 )
-ChatOutSchema = pydantic_model_creator(
-    Chats,
+ChatOut = pydantic_model_creator(
+    db_models.Chats,
     name="ChatOut",
     exclude=("updated_at",),
 )
 
+MessageIn = pydantic_model_creator(
+    db_models.Messages, name="MessageIn", exclude=("chat_id", "role"), exclude_readonly=True
+)
+MessageOut = pydantic_model_creator(db_models.Messages, name="MessageOut")
 
-class ChatOutSchemaList(BaseModel):
-    chats: List[ChatOutSchema]
 
-
-class Chat:
-    chat: ChatOutSchema
-    conversations: List[ConversationOutSchema]
+class ChatUpdate(BaseModel):
+    name: Optional[str] = None
+    assist_role: Optional[str] = None

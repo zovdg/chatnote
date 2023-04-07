@@ -1,12 +1,12 @@
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from ..db.models import Users
+from ..db import models as db_models
 
 
-UserInSchema = pydantic_model_creator(Users, name="UserIn", exclude_readonly=True)
-UserOutSchema = pydantic_model_creator(
-    Users, name="UserOut", exclude=("password", "created_at", "updated_at")
+UserIn = pydantic_model_creator(db_models.Users, name="UserIn", exclude_readonly=True)
+UserOut = pydantic_model_creator(
+    db_models.Users, name="UserOut", exclude=("password", "created_at", "updated_at")
 )
-UserDatabaseSchema = pydantic_model_creator(
-    Users, name="User", exclude=("created_at", "updated_at")
+UserDB = pydantic_model_creator(
+    db_models.Users, name="UserDB", exclude=("created_at", "updated_at")
 )

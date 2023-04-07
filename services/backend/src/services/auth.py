@@ -7,18 +7,14 @@ from .. import auth
 from .. import exceptions
 
 
-class AuthService:
-    """Auth Service."""
+async def login(user: OAuth2PasswordRequestForm):
+    user = await auth.validate_user(user)
 
-    @staticmethod
-    async def login(user: OAuth2PasswordRequestForm):
-        user = await auth.validate_user(user)
+    if not user:
+        raise exceptions.unauthorized("Incorrect username or password")
 
-        if not user:
-            raise exceptions.unauthorized("Incorrect username or password")
-
-        access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = auth.create_access_token(
-            data={"sub": user.username}, expire_delta=access_token_expires
-        )
-        return jsonable_encoder(access_token)
+    access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = auth.create_access_token(
+        data={"sub": user.username}, expire_delta=access_token_expires
+    )
+    return jsonable_encoder(access_token)

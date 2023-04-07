@@ -13,7 +13,7 @@ db-init:
 	docker-compose exec backend aerich init -t src.db.config.TORTOISE_ORM
 	docker-compose exec backend aerich init-db
 
-db-init-destroy:
+db-un-init:
 	${RM} services/backend/migrations
 	${RM} services/backend/pyproject.toml
 
@@ -25,12 +25,12 @@ db-use:
 	docker-compose exec db psql -U chatnote -w chatnote -d chatnote
 
 # service commands:
-service_restart: service_stop service_start
+service-restart: service-stop service-start
 
-service_start:
+service-start:
 	docker-compose up -d
 
-service_stop:
+service-stop:
 	docker-compose kill
 
 
